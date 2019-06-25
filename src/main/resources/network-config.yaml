@@ -1,0 +1,109 @@
+---
+#
+# The network connection profile provides client applications the information about the target
+# com.blockchain network that are necessary for the applications to interact with it. These are all
+# knowledge that must be acquired from out-of-band sources. This file provides such a source.
+#
+name: "example"
+
+#
+# Any properties with an "x-" prefix will be treated as application-specific, exactly like how naming
+# in HTTP headers or swagger properties work. The SDK will simply ignore these fields and leave
+# them for the applications to process. This is a mechanism for different components of an application
+# to exchange information that are not part of the standard schema described below. In particular,
+# the "x-type" property with the "hlfv1" value example below is used by Hyperledger Composer to
+# determine the type of Fabric networks (v0.6 vs. v1.0) it needs to work with.
+#
+x-type: "hlfv1.1"
+
+#
+# Describe what the target network is/does.
+#
+description: "fabric network"
+
+#
+# Schema version of the content. Used by the SDK to apply the corresponding parsing rules.
+#
+version: "1.0"
+
+#
+# The client section will be added on a per org basis see org1.yaml and org2.yaml
+#
+#client:
+client:
+  # Which organization does this application instance belong to? The value must be the name of an org
+  # defined under "organizations"
+  organization: Org1
+#
+# list of participating organizations in this network
+#
+organizations:
+  Org1:
+    mspid: Org1MSP
+    # [Optional]. Certificate Authorities issue certificates for identification purposes in a Fabric based
+    # network. Typically certificates provisioning is done in a separate process outside of the
+    # runtime network. Fabric-CA is a special certificate authority that provides a REST APIs for
+    # dynamic certificate management (enroll, revoke, re-enroll). The following section is only for
+    # Fabric-CA servers.
+    certificateAuthorities:
+      - ca-org1
+      - ca-org1-tls
+
+  Org2:
+    mspid: Org2MSP
+    certificateAuthorities:
+      - ca-org2
+      - ca-org2-tls
+
+#
+# Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
+# certificate management to be done via REST APIs. Application may choose to use a standard
+# Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
+#
+certificateAuthorities:
+  ca-org1:
+    url: http://ca.org1.example.com:7056
+    # the properties specified under this object are passed to the 'http' client verbatim when
+    # making the request to the Fabric-CA server
+    httpOptions:
+      verify: false
+    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+    # needed to enroll and invoke new users.
+    registrar:
+      - enrollId: Admin@org1.example.com
+    # [Optional] The optional name of the CA.
+    caName: intermediaca2
+
+  ca-org1-tls:
+    url: http://tlsca.org1.example.com:8056
+    # the properties specified under this object are passed to the 'http' client verbatim when
+    # making the request to the Fabric-CA server
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: artifacts/channel/crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-Admin@org1.example.com-cert.pem
+
+    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+    # needed to enroll and invoke new users.
+    registrar:
+      - enrollId: Admin@org1.example.com
+    # [Optional] The optional name of the CA.
+    caName: intermediacatls2
+
+  ca-org2:
+    url: http://ca.org1.example.com:7057
+    httpOptions:
+      verify: false
+    registrar:
+      - enrollId: Admin@org2.example.com
+    # [Optional] The optional name of the CA.
+    caName: intermediaca3
+
+  ca-org2-tls:
+    url: http://tlsca.org1.example.com:8057
+    httpOptions:
+      verify: false
+    registrar:
+      - enrollId: Admin@org2.example.com
+    # [Optional] The optional name of the CA.
+    caName: intermediacatls3
